@@ -1,10 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.XR;
 
 using GorillaLocomotion;
+using Steamworks;
+
+using Photon.Pun;
 
 namespace SuperMonke.Behaviours
 {
@@ -22,13 +25,12 @@ namespace SuperMonke.Behaviours
 
         private void Update()
         {
-            if(Plugin.instance.modEnabled && Plugin.instance.inRoom)
+            if (PhotonNetwork.CurrentRoom.CustomProperties["gameMode"].ToString().Contains("MODDED"))
             {
-                bool isLeft = InputHandler.GetInput(true, InputHandler.InputType.triggerButton) && InputHandler.GetInput(true, InputHandler.InputType.gripButton) && InputHandler.GetInput(true, InputHandler.InputType.primaryButton);
-                bool isRight = InputHandler.GetInput(false, InputHandler.InputType.triggerButton) && InputHandler.GetInput(false, InputHandler.InputType.gripButton) && InputHandler.GetInput(false, InputHandler.InputType.primaryButton);
-
-                Vector3 bodyToLeft = player.leftHandTransform.position - player.bodyCollider.transform.position;
-                Vector3 bodyToRight = player.rightHandTransform.position - player.bodyCollider.transform.position;
+                bool isLeft = ControllerInputPoller.instance.leftControllerIndexFloat > 0.1f && ControllerInputPoller.instance.leftGrab && ControllerInputPoller.instance.leftControllerPrimaryButton;
+                bool isRight = ControllerInputPoller.instance.rightControllerIndexFloat > 0.1f && ControllerInputPoller.instance.rightGrab && ControllerInputPoller.instance.rightControllerPrimaryButton;
+                Vector3 bodyToLeft = player.leftControllerTransform.position - player.bodyCollider.transform.position;
+                Vector3 bodyToRight = player.rightControllerTransform.position - player.bodyCollider.transform.position;
 
                 if (isLeft && isRight)
                 {
@@ -40,7 +42,7 @@ namespace SuperMonke.Behaviours
                 else
                 {
                     rb.useGravity = true;
-                    if(rb.velocity.magnitude > 2)
+                    if (rb.velocity.magnitude > 2)
                         speed = rb.velocity.magnitude;
                 }
             }
